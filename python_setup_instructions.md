@@ -24,7 +24,7 @@ To exit, you can simply close the window, or run
 conda deactivate tdt4265
 ```
 
-Note that every time you want to work on the assignment, you should run `source activate tdt4265` (change to the name of your virtual env).
+Note that every time you want to work on the assignment, you should run `conda activate tdt4265` (change to the name of your virtual env).
 
 You may refer to [this page](https://conda.io/docs/user-guide/tasks/manage-environments.html) for more detailed instructions on managing virtual environments with Anaconda.
 
