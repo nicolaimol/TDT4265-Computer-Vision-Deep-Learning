@@ -26,6 +26,7 @@ files_to_include = {
     "task3a": [".py"],
     "trainer": [".py"],
     "utils": [".py"],
+    "mnist.py": [".py"],
 }
 zipfile_path = "assignment_code.zip"
 print("-"*80)

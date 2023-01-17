@@ -12,7 +12,6 @@ def batch_loader(
     Creates a batch generator over the whole dataset (X, Y) which returns a generator iterating over all the batches.
     This function is called once each epoch.
     Often drop_last is set to True for the train dataset, but not for the train set.
-
     Args:
         X: images of shape [batch size, 784] in the range (0, 255)
         Y: labels of shape [batch size]

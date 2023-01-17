@@ -61,7 +61,7 @@ class LogisticTrainer(BaseTrainer):
         return loss, accuracy_train, accuracy_val
 
 
-if __name__ == "__main__":
+def main():
     # hyperparameters DO NOT CHANGE IF NOT SPECIFIED IN ASSIGNMENT TEXT
     num_epochs = 50
     learning_rate = 0.05
@@ -148,3 +148,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.savefig("task2e_train_accuracy_shuffle_difference.png")
     plt.show()
+
+
+if __name__ == "__main__":
+    main()

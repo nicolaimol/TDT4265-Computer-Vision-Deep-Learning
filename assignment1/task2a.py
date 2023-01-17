@@ -97,7 +97,7 @@ def gradient_approximation_test(model: BinaryModel, X: np.ndarray, Y: np.ndarray
             f"forward function or backward function"
 
 
-if __name__ == "__main__":
+def main():
     category1, category2 = 2, 3
     X_train, Y_train, *_ = utils.load_binary_dataset(category1, category2)
     X_train = pre_process_images(X_train)
@@ -121,3 +121,7 @@ if __name__ == "__main__":
     for i in range(2):
         gradient_approximation_test(model, X_train, Y_train)
         model.w = np.random.randn(*model.w.shape)
+
+
+if __name__ == "__main__":
+    main()

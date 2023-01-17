@@ -107,7 +107,7 @@ def gradient_approximation_test(model: SoftmaxModel, X: np.ndarray, Y: np.ndarra
                 f"forward function or backward function"
 
 
-if __name__ == "__main__":
+def main():
     # Simple test on one-hot encoding
     Y = np.zeros((1, 1), dtype=int)
     Y[0, 0] = 3
@@ -134,3 +134,7 @@ if __name__ == "__main__":
     for i in range(2):
         gradient_approximation_test(model, X_train, Y_train)
         model.w = np.random.randn(*model.w.shape)
+
+
+if __name__ == "__main__":
+    main()

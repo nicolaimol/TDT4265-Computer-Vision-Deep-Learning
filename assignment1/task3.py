@@ -53,16 +53,16 @@ class SoftmaxTrainer(BaseTrainer):
         """
         # NO NEED TO CHANGE THIS FUNCTION
         logits = self.model.forward(self.X_val)
-        loss = cross_entropy_loss(Y_val, logits)
+        loss = cross_entropy_loss(self.Y_val, logits)
 
         accuracy_train = calculate_accuracy(
-            X_train, Y_train, self.model)
+            self.X_train, self.Y_train, self.model)
         accuracy_val = calculate_accuracy(
-            X_val, Y_val, self.model)
+            self.X_val, self.Y_val, self.model)
         return loss, accuracy_train, accuracy_val
 
 
-if __name__ == "__main__":
+def main():
     # hyperparameters DO NOT CHANGE IF NOT SPECIFIED IN ASSIGNMENT TEXT
     num_epochs = 50
     learning_rate = 0.01
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     print("Final Train accuracy:", calculate_accuracy(X_train, Y_train, model))
     print("Final Validation accuracy:", calculate_accuracy(X_val, Y_val, model))
 
-    plt.ylim([0.2, .6])
+    plt.ylim([0.2, .8])
     utils.plot_loss(train_history["loss"],
                     "Training Loss", npoints_to_average=10)
     utils.plot_loss(val_history["loss"], "Validation Loss")
@@ -117,7 +117,7 @@ if __name__ == "__main__":
 
     # Train a model with L2 regularization (task 4b)
 
-    model1 = SoftmaxModel(l2_reg_lambda=2.0)
+    model1 = SoftmaxModel(l2_reg_lambda=1.0)
     trainer = SoftmaxTrainer(
         model1, learning_rate, batch_size, shuffle_dataset,
         X_train, Y_train, X_val, Y_val,
@@ -126,12 +126,16 @@ if __name__ == "__main__":
     # You can finish the rest of task 4 below this point.
 
     # Plotting of softmax weights (Task 4b)
-    #plt.imsave("task4b_softmax_weight.png", weight, cmap="gray")
+    # plt.imsave("task4b_softmax_weight.png", weight, cmap="gray")
 
     # Plotting of accuracy for difference values of lambdas (task 4c)
-    l2_lambdas = [2, .2, .02, .002]
+    l2_lambdas = [1, .1, .01, .001]
     plt.savefig("task4c_l2_reg_accuracy.png")
 
     # Task 4d - Plotting of the l2 norm for each weight
 
     plt.savefig("task4d_l2_reg_norms.png")
+
+
+if __name__ == "__main__":
+    main()
