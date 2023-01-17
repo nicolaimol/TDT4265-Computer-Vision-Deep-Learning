@@ -1,6 +1,6 @@
 # TDT4265 -Computer Vision and Deep Learning
 
-This is the repository for the assignments in TDT4265. This repository was originally written by [Håkon Hukkelas](https://www.ntnu.edu/employees/hakon.hukkelas) with current additions by [Mamoona Birkhez Shami](https://www.ntnu.edu/employees/mamoona.b.shami).
+This is the repository for the assignments in TDT4265. This repository was originally written by [Håkon Hukkelas](https://www.ntnu.edu/employees/hakon.hukkelas) (-2021) with current additions by [Mamoona Birkhez Shami](https://www.ntnu.edu/employees/mamoona.b.shami).
 
 
 ## Preparing yourself for the assignments
@@ -29,5 +29,5 @@ You can also download this repository as a zip file and unzip it on your compute
 **There might be minor typos or minor alterations to the starter code**. If this happens, we will notify you on blackboard and you can update your starter code by doing (In your assignment directory):
 
 ```
-git pull origin master
+git pull origin main
 ```

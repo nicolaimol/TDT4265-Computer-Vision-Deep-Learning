@@ -15,16 +15,16 @@ to create a environment called `tdt4265`.
 Then, to activate and enter the environment, run
 
 ```bash
-source activate tdt4265
+conda activate tdt4265
 ```
 
 To exit, you can simply close the window, or run
 
 ```bash
-source deactivate tdt4265
+conda deactivate tdt4265
 ```
 
-Note that every time you want to work on the assignment, you should run `source activate tdt4265` (change to the name of your virtual env).
+Note that every time you want to work on the assignment, you should run `conda activate tdt4265` (change to the name of your virtual env).
 
 You may refer to [this page](https://conda.io/docs/user-guide/tasks/manage-environments.html) for more detailed instructions on managing virtual environments with Anaconda.
 
@@ -32,7 +32,7 @@ You may refer to [this page](https://conda.io/docs/user-guide/tasks/manage-envir
 We use several python packages in this course. To install requirements you can use either pip or conda. First, activate and enter your environment with 
 
 ```bash
-source activate tdt4265
+conda activate tdt4265
 ```
 
 
