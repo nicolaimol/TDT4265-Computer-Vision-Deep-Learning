@@ -15,17 +15,19 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     # TODO implement this function (Task 3a)
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    raise NotImplementedError
+
+    cross_entropy_error = - np.sum(targets * np.log(outputs), axis=1)  # sum of all classes
+    return cross_entropy_error.mean()
 
 
 class SoftmaxModel:
 
     def __init__(self, l2_reg_lambda: float):
         # Define number of input nodes
-        self.I = None
+        self.I = 785
 
         # Define number of output nodes
-        self.num_outputs = None
+        self.num_outputs = 10
         self.w = np.zeros((self.I, self.num_outputs))
         self.grad = None
 
@@ -39,7 +41,10 @@ class SoftmaxModel:
             y: output of model with shape [batch size, num_outputs]
         """
         # TODO implement this function (Task 3a)
-        return None
+        z = np.dot(self.w.T, X.T)
+        y = np.exp(z) / (np.sum(np.exp(z), axis=0))
+        return y.T
+
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -59,6 +64,13 @@ class SoftmaxModel:
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
 
+        # Compute the gradient of the loss with respect to the weights
+        self.grad += np.dot((-(targets.T - outputs.T)), X).T
+
+        self.grad = np.divide(self.grad, X.shape[0]) + self.l2_reg_lambda * self.w
+
+
+
     def zero_grad(self) -> None:
         self.grad = None
 
@@ -72,7 +84,11 @@ def one_hot_encode(Y: np.ndarray, num_classes: int):
         Y: shape [Num examples, num classes]
     """
     # TODO implement this function (Task 3a)
-    raise NotImplementedError
+    Y_one_hot = np.zeros((Y.shape[0], num_classes))
+    # set the value to 1 for the correct class
+    for i in range(Y.shape[0]):
+        Y_one_hot[i, Y[i]] = 1
+    return Y_one_hot
 
 
 def gradient_approximation_test(model: SoftmaxModel, X: np.ndarray, Y: np.ndarray):

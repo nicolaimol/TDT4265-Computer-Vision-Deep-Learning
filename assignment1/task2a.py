@@ -13,7 +13,17 @@ def pre_process_images(X: np.ndarray):
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
+
+    # Normalize the images to the range [-1, 1]
+
+    X = X / 255
+    X = X * 2 -1
+    X = np.append(X, np.ones((X.shape[0], 1)), axis=1)
+
+
     return X
+
+
 
 
 def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
@@ -25,16 +35,21 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
         Cross entropy error (float)
     """
     # TODO implement this function (Task 2a)
+
+    cross_entropy_error = np.mean(-(targets * np.log(outputs) + (1 - targets) * np.log(1 - outputs)))
+    
+
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    return 0
+    
+    return cross_entropy_error
 
 
 class BinaryModel:
 
     def __init__(self):
         # Define number of input nodes
-        self.I = None
+        self.I = 785
         self.w = np.zeros((self.I, 1))
         self.grad = None
 
@@ -46,7 +61,9 @@ class BinaryModel:
             y: output of model with shape [batch size, 1]
         """
         # TODO implement this function (Task 2a)
-        return None
+        
+        y = 1.0/(1.0+np.exp(-np.dot(self.w.T, X.T)))
+        return y.T
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -57,9 +74,20 @@ class BinaryModel:
             targets: labels/targets of each image of shape: [batch size, 1]
         """
         # TODO implement this function (Task 2a)
+
+        self.grad = np.zeros_like(self.w)
+
+        # Compute the gradient of the loss with respect to the weights
+        self.grad += np.dot((-(targets.T - outputs.T)), X).T
+
+        # Take the mean of the gradient for each node
+
+        self.grad = np.divide(self.grad, X.shape[0])
+
+
+
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
-        self.grad = np.zeros_like(self.w)
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
 
