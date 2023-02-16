@@ -3,6 +3,7 @@ import utils
 import matplotlib.pyplot as plt
 from task2a import cross_entropy_loss, SoftmaxModel, one_hot_encode, pre_process_images
 from trainer import BaseTrainer
+import copy
 np.random.seed(0)
 
 
@@ -17,6 +18,12 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: SoftmaxModel) 
     """
     # TODO: Implement this function (copy from last assignment)
     accuracy = 0
+    logits = model.forward(X)  # sol
+    preds = logits.argmax(axis=1)  # sol
+    y = targets.argmax(axis=1)  # sol
+
+    correct_preds = preds == y
+    accuracy = correct_preds.mean()
     return accuracy
 
 
@@ -49,8 +56,20 @@ class SoftmaxTrainer(BaseTrainer):
         # TODO: Implement this function (task 2c)
 
         loss = 0
+        logits = self.model.forward(X_batch)
+        self.model.zero_grad()
+        self.model.backward(X_batch, logits, Y_batch)
 
-        loss = cross_entropy_loss(Y_batch, logits)  # sol
+        for layer in range(len(self.model.ws)):
+            grad = self.model.grads[layer]
+            if self.use_momentum:
+                prev_step = self.previous_grads[layer]
+
+                grad += self.momentum_gamma * prev_step
+                self.previous_grads[layer] = copy.copy(grad)
+            self.model.ws[layer] -= self.learning_rate * grad
+        self.model.zero_grad()
+        loss = cross_entropy_loss(Y_batch, logits)
 
         return loss
 
@@ -139,6 +158,7 @@ def main():
     plt.legend()
     plt.savefig("task2c_train_loss.png")
     plt.show()
+
 
 
 if __name__ == "__main__":

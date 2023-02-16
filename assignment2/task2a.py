@@ -14,6 +14,13 @@ def pre_process_images(X: np.ndarray):
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
+    # Hint: Use utils.load_full_mnist() to load the full MNIST dataset
+    X_train, _, X_val, _ = utils.load_full_mnist()
+    mean = np.mean(np.append(X_train, X_val))
+    std = np.sqrt(np.cov(np.append(X_train.flatten(), X_val.flatten())))
+
+    X = np.insert((X - mean) / std, X.shape[1], 1, axis=1)
+
     return X
 
 
@@ -28,7 +35,9 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
-    raise NotImplementedError
+
+    loss = targets * np.log(outputs)
+    return -loss.sum(axis=1).mean()
 
 
 class SoftmaxModel:
@@ -43,7 +52,7 @@ class SoftmaxModel:
         # Always reset random seed before weight init to get comparable results.
         np.random.seed(1)
         # Define number of input nodes
-        self.I = None
+        self.I = 785
         self.use_improved_sigmoid = use_improved_sigmoid
         self.use_relu = use_relu
         self.use_improved_weight_init = use_improved_weight_init
@@ -59,7 +68,12 @@ class SoftmaxModel:
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
-            w = np.zeros(w_shape)
+            if self.use_improved_weight_init:
+                fan_in = prev  # sol
+                std = 1 / np.sqrt(fan_in)  # sol
+                w = np.random.normal(scale=std, size=w_shape)
+            else:
+                w = np.random.uniform(-1, 1, size=w_shape)
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
@@ -74,7 +88,20 @@ class SoftmaxModel:
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
-        return None
+
+        self.layer_inputs = []  # sol
+        self.sigmoid_inputs = []  # sol
+        for layer_idx in range(len(self.ws)):  # sol
+            self.layer_inputs.append(X)  # sol
+            w = self.ws[layer_idx]  # sol
+            X = X.dot(w)  # sol
+            if len(self.ws) - 1 == layer_idx:  # Last layer, softmax #sol
+                X = self.softmax(X)  # sol
+            else:  # sol
+                self.sigmoid_inputs.append(X)  # sol
+                X = self.sigmoid(X, self.use_improved_sigmoid)  # sol
+        # sol
+        return X  # sol
 
     def backward(self, X: np.ndarray, outputs: np.ndarray,
                  targets: np.ndarray) -> None:
@@ -91,10 +118,46 @@ class SoftmaxModel:
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
+        delta = - (targets - outputs)
+
         self.grads = []
+        for layer_idx in range(len(self.ws) - 1, -1, -1):  # sol
+            norm_factor = X.shape[0]  # sol
+            dW = delta.T.dot(self.layer_inputs[layer_idx]) / norm_factor  # sol
+            dW = dW.T  # sol
+            self.grads = [dW] + self.grads  # sol
+            if layer_idx != 0:  # sol
+                sigmoid_input = self.sigmoid_inputs[layer_idx - 1]  # sol
+                delta = self.sigmoid_prime(  # sol
+                    sigmoid_input, self.use_improved_sigmoid) * delta.dot(self.ws[layer_idx].T)
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
                 f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
+
+    def softmax(self, x: np.ndarray) -> np.ndarray:  # sol
+        exp = np.exp(x)  # sol#sol
+        a = exp / exp.sum(axis=1, keepdims=True)  # sol
+        return a  # sol
+
+    def sigmoid(self, x: np.ndarray, use_improved_sigmoid: bool):
+        """
+        Args:
+            x: input to sigmoid function
+            use_improved_sigmoid: if True, use improved sigmoid function
+        Returns:
+            sigmoid(x)
+        """
+        # TODO implement this function (Task 3a)
+        if use_improved_sigmoid:
+            return 1.7159*np.tanh(2/3 * x)
+        else:
+            return 1 / (1 + np.exp(-x))
+
+    def sigmoid_prime(self, x: np.ndarray, use_improved_sigmoid: bool):
+        if use_improved_sigmoid:  # sol
+            return 1.7159 * 2 / (3 * np.cosh(2 * x / 3) ** 2)
+
+        return self.sigmoid(x, use_improved_sigmoid) * (1 - self.sigmoid(x, use_improved_sigmoid))
 
     def zero_grad(self) -> None:
         self.grads = [None for i in range(len(self.ws))]
@@ -109,7 +172,11 @@ def one_hot_encode(Y: np.ndarray, num_classes: int):
         Y: shape [Num examples, num classes]
     """
     # TODO: Implement this function (copy from last assignment)
-    raise NotImplementedError
+    Y_one_hot = np.zeros((Y.shape[0], num_classes))
+    # set the value to 1 for the correct class
+    for i in range(Y.shape[0]):
+        Y_one_hot[i, Y[i]] = 1
+    return Y_one_hot
 
 
 def gradient_approximation_test(

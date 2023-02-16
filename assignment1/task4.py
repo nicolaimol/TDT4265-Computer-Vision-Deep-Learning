@@ -46,9 +46,6 @@ class SoftmaxTrainer(BaseTrainer):
         return loss
 
 
-        #loss = 0
-        #return loss
-
     def validation_step(self):
         """
         Perform a validation step to evaluate the model at the current step for the validation set.
@@ -96,7 +93,7 @@ def main():
         model, learning_rate, batch_size, shuffle_dataset,
         X_train, Y_train, X_val, Y_val,
     )
-    train_history, val_history = trainer.train(num_epochs)
+    train_history, val_history = trainer.train(num_epochs, early_stopping=False)
 
     # Train a model with L2 regularization (task 4b)
 
@@ -105,7 +102,7 @@ def main():
         model_1, learning_rate, batch_size, shuffle_dataset,
         X_train, Y_train, X_val, Y_val,
     )
-    train_history_reg_1, val_history_reg_1 = trainer_1.train(num_epochs)
+    train_history_reg_1, val_history_reg_1 = trainer_1.train(num_epochs, early_stopping=False)
     # You can finish the rest of task 4 below this point.
 
     im_h = 28
@@ -137,7 +134,7 @@ def main():
             model, learning_rate, batch_size, shuffle_dataset,
             X_train, Y_train, X_val, Y_val,
         )
-        train_history, val_history = trainer.train(num_epochs)
+        train_history, val_history = trainer.train(num_epochs, early_stopping=False)
 
         # recording norm for 4e)
         print(float(np.sum(model.w * model.w)))
@@ -157,13 +154,13 @@ def main():
     plt.savefig("task4c_l2_reg_accuracy.png")
     plt.close()
 
-    # Task 4d - Plotting of the l2 norm for each weight
+    # Task 4e - Plotting of the l2 norm for each weight
     plt.plot(l2_lambdas, weight_norm)
 
     plt.xlabel("Lambda")
     plt.ylabel("L2 norm")
 
-    plt.savefig("task4d_l2_reg_norms.png")
+    plt.savefig("task4e_l2_reg_norms.png")
 
 
 if __name__ == "__main__":

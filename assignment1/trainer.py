@@ -51,7 +51,8 @@ class BaseTrainer:
 
     def train(
             self,
-            num_epochs: int):
+            num_epochs: int,
+            early_stopping: bool = True):
         """
         Training loop for model.
         Implements stochastic gradient descent with num_epochs passes over the train dataset.
@@ -90,22 +91,22 @@ class BaseTrainer:
 
                     # TODO (Task 2d): Implement early stopping here.
                     # You can access the validation loss in val_history["loss"]
+                    if early_stopping:
+                        losses = list(val_history["loss"].values())
 
-                    losses = list(val_history["loss"].values())
+                        min_loss = np.min(losses)
 
-                    min_loss = np.min(losses)
+                        if len(losses) > 10:
+                            count = 0
+                            for i in range(10):
+                                if min_loss < losses[-1-i]:
+                                    count += 1
+                                else:
+                                    break
 
-                    if len(losses) > 10:
-                        count = 0
-                        for i in range(10):
-                            if min_loss < losses[-1-i]:
-                                count += 1
-                            else:
-                                break
-
-                        if count == 10:
-                            print(f"Early stopping triggered at epoch: {epoch}")
-                            return train_history, val_history
+                            if count == 10:
+                                print(f"Early stopping triggered at epoch: {epoch}")
+                                return train_history, val_history
 
                 global_step += 1
         return train_history, val_history
