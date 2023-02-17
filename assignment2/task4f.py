@@ -109,7 +109,7 @@ def main():
     use_improved_sigmoid = False
     use_improved_weight_init = True
     use_momentum = False
-    use_relu = False
+    use_relu = True
 
     # Load dataset
     X_train, Y_train, X_val, Y_val = utils.load_full_mnist()
@@ -160,7 +160,7 @@ def main():
     # sol
     plt.xlabel("Number of gradient steps")
     plt.ylabel("Cross Entropy Loss")
-    plt.legend()
+    plt.legend() 
     plt.subplot(1, 2, 2)
     plt.ylim([0.9, 1.0])
     utils.plot_loss(val_history["accuracy"], "Validation ")
@@ -168,7 +168,7 @@ def main():
     plt.xlabel("Number of gradient steps")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig("task4e_solution.png")
+    plt.savefig("task4f_solution.png")
     plt.show()
 
 
