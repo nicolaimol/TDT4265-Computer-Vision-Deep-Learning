@@ -18,9 +18,9 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: SoftmaxModel) 
     """
     # TODO: Implement this function (copy from last assignment)
     accuracy = 0
-    logits = model.forward(X)
-    preds = logits.argmax(axis=1)
-    y = targets.argmax(axis=1)
+    logits = model.forward(X)  # sol
+    preds = logits.argmax(axis=1)  # sol
+    y = targets.argmax(axis=1)  # sol
 
     correct_preds = preds == y
     accuracy = correct_preds.mean()
@@ -101,13 +101,13 @@ def main():
     num_epochs = 50
     learning_rate = .1
     batch_size = 32
-    neurons_per_layer = [64, 10]
+    neurons_per_layer = [64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 10]
     momentum_gamma = .9  # Task 3 hyperparameter
     shuffle_data = True
 
     # Settings for task 2 and 3. Keep all to false for task 2.
     use_improved_sigmoid = False
-    use_improved_weight_init = False
+    use_improved_weight_init = True
     use_momentum = False
     use_relu = False
 
@@ -120,7 +120,7 @@ def main():
     # Hyperparameters
 
     model = SoftmaxModel(
-        neurons_per_layer,
+        [64, 10],
         use_improved_sigmoid,
         use_improved_weight_init,
         use_relu)
@@ -131,6 +131,19 @@ def main():
     )
     train_history, val_history = trainer.train(num_epochs)
 
+    model_5 = SoftmaxModel(
+        neurons_per_layer,
+        use_improved_sigmoid,
+        use_improved_weight_init,
+        use_relu)
+
+    trainer_5 = SoftmaxTrainer(
+        momentum_gamma, use_momentum,
+        model_5, learning_rate, batch_size, shuffle_data,
+        X_train, Y_train, X_val, Y_val,
+    )
+    train_history_5, val_history_5 = trainer_5.train(num_epochs)
+
     print("Final Train Cross Entropy Loss:",
           cross_entropy_loss(Y_train, model.forward(X_train)))
     print("Final Validation Cross Entropy Loss:",
@@ -139,7 +152,7 @@ def main():
     print("Validation accuracy:", calculate_accuracy(X_val, Y_val, model))
 
     # Plot loss for first model (task 2c)
-    plt.figure(figsize=(20, 12))
+    """plt.figure(figsize=(20, 12))
     plt.subplot(1, 2, 1)
     plt.ylim([0., 0.9])
     utils.plot_loss(train_history["loss"],
@@ -156,8 +169,26 @@ def main():
     plt.xlabel("Number of Training Steps")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig("task2c_train_loss.png")
-    plt.show()
+    plt.savefig("task4e_train_loss.png")
+    plt.show()"""
+    plt.figure(figsize=(20, 8))
+    plt.subplot(1, 2, 1)
+    plt.ylim([0.0, 1])  # sol
+    utils.plot_loss(train_history["loss"], "Train Loss", npoints_to_average=10)  # sol
+    utils.plot_loss(train_history_5["loss"], "Train 10 layers 64 units", npoints_to_average=10)  # sol
+    # sol
+    plt.xlabel("Number of gradient steps")  # sol
+    plt.ylabel("Cross Entropy Loss")  # sol
+    plt.legend()  # sol
+    plt.subplot(1, 2, 2)
+    plt.ylim([0.9, 1.0])
+    utils.plot_loss(val_history["accuracy"], "Validation ")
+    utils.plot_loss(val_history_5["accuracy"], "Validation 10 layers 64 units")
+    plt.xlabel("Number of gradient steps")
+    plt.ylabel("Accuracy")
+    plt.legend()  # sol
+    plt.savefig("task4e_solution.png")  # sol
+    plt.show()  # sol
 
 
 

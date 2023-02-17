@@ -69,8 +69,8 @@ class SoftmaxModel:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
             if self.use_improved_weight_init:
-                fan_in = prev  # sol
-                std = 1 / np.sqrt(fan_in)  # sol
+                fan_in = prev
+                std = 1 / np.sqrt(fan_in)
                 w = np.random.normal(scale=std, size=w_shape)
             else:
                 w = np.random.uniform(-1, 1, size=w_shape)
@@ -89,19 +89,22 @@ class SoftmaxModel:
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
 
-        self.layer_inputs = []  # sol
-        self.sigmoid_inputs = []  # sol
-        for layer_idx in range(len(self.ws)):  # sol
-            self.layer_inputs.append(X)  # sol
-            w = self.ws[layer_idx]  # sol
-            X = X.dot(w)  # sol
-            if len(self.ws) - 1 == layer_idx:  # Last layer, softmax #sol
-                X = self.softmax(X)  # sol
-            else:  # sol
-                self.sigmoid_inputs.append(X)  # sol
-                X = self.sigmoid(X, self.use_improved_sigmoid)  # sol
-        # sol
-        return X  # sol
+        self.layer_inputs = []
+        self.sigmoid_inputs = []
+        for layer_idx in range(len(self.ws)):
+            self.layer_inputs.append(X)
+            w = self.ws[layer_idx]
+            X = X.dot(w)
+            if len(self.ws) - 1 == layer_idx:  # Last layer, softmax
+                X = self.softmax(X)
+            else:
+                self.sigmoid_inputs.append(X)
+                if self.use_relu:
+                    X = self.relu(X)
+                else:
+                    X = self.sigmoid(X, self.use_improved_sigmoid)
+
+        return X
 
     def backward(self, X: np.ndarray, outputs: np.ndarray,
                  targets: np.ndarray) -> None:
@@ -121,23 +124,26 @@ class SoftmaxModel:
         delta = - (targets - outputs)
 
         self.grads = []
-        for layer_idx in range(len(self.ws) - 1, -1, -1):  # sol
-            norm_factor = X.shape[0]  # sol
-            dW = delta.T.dot(self.layer_inputs[layer_idx]) / norm_factor  # sol
-            dW = dW.T  # sol
-            self.grads = [dW] + self.grads  # sol
-            if layer_idx != 0:  # sol
-                sigmoid_input = self.sigmoid_inputs[layer_idx - 1]  # sol
-                delta = self.sigmoid_prime(  # sol
-                    sigmoid_input, self.use_improved_sigmoid) * delta.dot(self.ws[layer_idx].T)
+        for layer_idx in range(len(self.ws) - 1, -1, -1):
+            norm_factor = X.shape[0]
+            dW = delta.T.dot(self.layer_inputs[layer_idx]) / norm_factor
+            dW = dW.T
+            self.grads = [dW] + self.grads
+            if layer_idx != 0:
+                sigmoid_input = self.sigmoid_inputs[layer_idx - 1]
+                if self.use_relu:
+                    delta = self.relu_prime(sigmoid_input) * delta.dot(self.ws[layer_idx].T)
+                else:
+                    delta = self.sigmoid_prime(
+                        sigmoid_input, self.use_improved_sigmoid) * delta.dot(self.ws[layer_idx].T)
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
                 f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
 
-    def softmax(self, x: np.ndarray) -> np.ndarray:  # sol
-        exp = np.exp(x)  # sol#sol
-        a = exp / exp.sum(axis=1, keepdims=True)  # sol
-        return a  # sol
+    def softmax(self, x: np.ndarray) -> np.ndarray:
+        exp = np.exp(x)
+        a = exp / exp.sum(axis=1, keepdims=True)
+        return a
 
     def sigmoid(self, x: np.ndarray, use_improved_sigmoid: bool):
         """
@@ -153,11 +159,24 @@ class SoftmaxModel:
         else:
             return 1 / (1 + np.exp(-x))
 
+    def relu(self, x: np.ndarray):
+        """
+        Args:
+            x: input to relu function
+        Returns:
+            relu(x)
+        """
+        # TODO implement this function (Task 4a)
+        return np.maximum(0, x)
+
     def sigmoid_prime(self, x: np.ndarray, use_improved_sigmoid: bool):
         if use_improved_sigmoid:
             return 1.7159 * 2 / (3 * np.cosh(2 * x / 3) ** 2)
 
         return self.sigmoid(x, use_improved_sigmoid) * (1 - self.sigmoid(x, use_improved_sigmoid))
+
+    def relu_prime(self, x: np.ndarray):
+        return (x > 0).astype(int)
 
     def zero_grad(self) -> None:
         self.grads = [None for i in range(len(self.ws))]
