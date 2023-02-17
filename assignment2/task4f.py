@@ -18,9 +18,9 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: SoftmaxModel) 
     """
     # TODO: Implement this function (copy from last assignment)
     accuracy = 0
-    logits = model.forward(X)  # sol
-    preds = logits.argmax(axis=1)  # sol
-    y = targets.argmax(axis=1)  # sol
+    logits = model.forward(X)
+    preds = logits.argmax(axis=1)
+    y = targets.argmax(axis=1)
 
     correct_preds = preds == y
     accuracy = correct_preds.mean()
@@ -157,7 +157,7 @@ def main():
     plt.ylim([0.0, 1])
     utils.plot_loss(train_history["loss"], "Train Loss", npoints_to_average=10)
     utils.plot_loss(train_history_5["loss"], "Train 10 layers 64 units", npoints_to_average=10)
-    # sol
+
     plt.xlabel("Number of gradient steps")
     plt.ylabel("Cross Entropy Loss")
     plt.legend() 

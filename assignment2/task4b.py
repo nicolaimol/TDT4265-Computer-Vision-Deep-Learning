@@ -18,9 +18,9 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: SoftmaxModel) 
     """
     # TODO: Implement this function (copy from last assignment)
     accuracy = 0
-    logits = model.forward(X)  # sol
-    preds = logits.argmax(axis=1)  # sol
-    y = targets.argmax(axis=1)  # sol
+    logits = model.forward(X)
+    preds = logits.argmax(axis=1)
+    y = targets.argmax(axis=1)
 
     correct_preds = preds == y
     accuracy = correct_preds.mean()
