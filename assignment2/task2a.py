@@ -154,7 +154,7 @@ class SoftmaxModel:
             return 1 / (1 + np.exp(-x))
 
     def sigmoid_prime(self, x: np.ndarray, use_improved_sigmoid: bool):
-        if use_improved_sigmoid:  # sol
+        if use_improved_sigmoid:
             return 1.7159 * 2 / (3 * np.cosh(2 * x / 3) ** 2)
 
         return self.sigmoid(x, use_improved_sigmoid) * (1 - self.sigmoid(x, use_improved_sigmoid))
