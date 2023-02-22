@@ -24,6 +24,8 @@ def compute_loss_and_accuracy(
     accuracy = 0
     # TODO: Implement this function (Task  2a)
     with torch.no_grad():
+        loss = 0
+        accuracy = []
         for (X_batch, Y_batch) in dataloader:
             # Transfer images/labels to GPU VRAM, if possible
             X_batch = utils.to_cuda(X_batch)
@@ -31,10 +33,17 @@ def compute_loss_and_accuracy(
             # Forward pass the images through our model
             output_probs = model(X_batch)
 
+            loss += loss_criterion(output_probs, Y_batch)
+
+            accuracy.append((output_probs.argmax(dim=1) == Y_batch).sum().item())
+
             # Compute Loss and Accuracy
 
             # Predicted class is the max index over the column dimension
-    return average_loss, accuracy
+
+    average_loss = loss / len(dataloader)
+    accuracy = sum(accuracy) / len(dataloader.dataset)
+    return average_loss.cpu(), accuracy
 
 
 class Trainer:
