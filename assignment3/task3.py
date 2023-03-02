@@ -34,7 +34,7 @@ class Task3(nn.Module):
                 stride=1,
                 padding=2
             ),
-            nn.ReLU(),
+            nn.LeakyReLU(0.2),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(
                 in_channels=num_filters,
@@ -43,7 +43,7 @@ class Task3(nn.Module):
                 stride=1,
                 padding=2
             ),
-            nn.ReLU(),
+            nn.LeakyReLU(0.2),
             nn.Conv2d(
                 in_channels=num_filters*2,
                 out_channels=num_filters*2,
@@ -51,9 +51,9 @@ class Task3(nn.Module):
                 stride=1,
                 padding=2
             ),
-            nn.ReLU(),
+            nn.LeakyReLU(0.2),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.ReLU(),
+            nn.LeakyReLU(0.2),
             nn.Conv2d(
                 in_channels=num_filters*2,
                 out_channels=num_filters*4,
@@ -61,9 +61,9 @@ class Task3(nn.Module):
                 stride=1,
                 padding=2
             ),
-            nn.ReLU(),
+            nn.LeakyReLU(0.2),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.ReLU(),
+            nn.LeakyReLU(0.2),
         )
         # The output of feature_extractor will be [batch_size, num_filters, 16, 16]
         #self.num_output_features = 2048
