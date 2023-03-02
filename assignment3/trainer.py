@@ -5,6 +5,8 @@ import collections
 import utils
 import pathlib
 
+from tqdm.auto import tqdm
+
 
 def compute_loss_and_accuracy(
         dataloader: torch.utils.data.DataLoader,
@@ -24,8 +26,12 @@ def compute_loss_and_accuracy(
     accuracy = 0
     # TODO: Implement this function (Task  2a)
     with torch.no_grad():
-        loss = 0
-        accuracy = []
+        average_loss = 0 #sol
+        total_correct = 0 #sol
+        total_images = 0 #sol
+        total_steps = 0 #sol
+        average_loss = 0
+        accuracy = 0
         for (X_batch, Y_batch) in dataloader:
             # Transfer images/labels to GPU VRAM, if possible
             X_batch = utils.to_cuda(X_batch)
@@ -33,17 +39,21 @@ def compute_loss_and_accuracy(
             # Forward pass the images through our model
             output_probs = model(X_batch)
 
-            loss += loss_criterion(output_probs, Y_batch)
+            loss = loss_criterion(output_probs, Y_batch) #sol
 
-            accuracy.append((output_probs.argmax(dim=1) == Y_batch).sum().item())
+            # Predicted class is the max index over the column dimension #sol
+            predictions = output_probs.argmax(dim=1).squeeze() #sol
+            Y_batch = Y_batch.squeeze() #sol
+            #sol
+            # Update tracking variables #sol
+            average_loss += loss.item() #sol
+            total_steps += 1 #sol
+            total_correct += (predictions == Y_batch).sum().item() #sol
+            total_images += predictions.shape[0] #sol
+    average_loss = average_loss / total_steps #sol
+    accuracy = total_correct / total_images #sol
 
-            # Compute Loss and Accuracy
-
-            # Predicted class is the max index over the column dimension
-
-    average_loss = loss / len(dataloader)
-    accuracy = sum(accuracy) / len(dataloader.dataset)
-    return average_loss.cpu(), accuracy
+    return average_loss, accuracy
 
 
 class Trainer:
@@ -173,7 +183,7 @@ class Trainer:
         for epoch in range(self.epochs):
             self.epoch = epoch
             # Perform a full pass through all the training samples
-            for X_batch, Y_batch in self.dataloader_train:
+            for X_batch, Y_batch in tqdm(self.dataloader_train):
                 loss = self.train_step(X_batch, Y_batch)
                 self.train_history["loss"][self.global_step] = loss
                 self.global_step += 1
