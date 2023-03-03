@@ -26,10 +26,10 @@ def compute_loss_and_accuracy(
     accuracy = 0
     # TODO: Implement this function (Task  2a)
     with torch.no_grad():
-        average_loss = 0 #sol
-        total_correct = 0 #sol
-        total_images = 0 #sol
-        total_steps = 0 #sol
+        average_loss = 0 
+        total_correct = 0 
+        total_images = 0
+        total_steps = 0
         average_loss = 0
         accuracy = 0
         for (X_batch, Y_batch) in dataloader:
@@ -39,19 +39,19 @@ def compute_loss_and_accuracy(
             # Forward pass the images through our model
             output_probs = model(X_batch)
 
-            loss = loss_criterion(output_probs, Y_batch) #sol
+            loss = loss_criterion(output_probs, Y_batch) 
 
-            # Predicted class is the max index over the column dimension #sol
-            predictions = output_probs.argmax(dim=1).squeeze() #sol
-            Y_batch = Y_batch.squeeze() #sol
-            #sol
-            # Update tracking variables #sol
-            average_loss += loss.item() #sol
-            total_steps += 1 #sol
-            total_correct += (predictions == Y_batch).sum().item() #sol
-            total_images += predictions.shape[0] #sol
-    average_loss = average_loss / total_steps #sol
-    accuracy = total_correct / total_images #sol
+            # Predicted class is the max index over the column dimension 
+            predictions = output_probs.argmax(dim=1).squeeze() 
+            Y_batch = Y_batch.squeeze() 
+            
+            # Update tracking variables 
+            average_loss += loss.item() 
+            total_steps += 1 
+            total_correct += (predictions == Y_batch).sum().item() 
+            total_images += predictions.shape[0] 
+    average_loss = average_loss / total_steps 
+    accuracy = total_correct / total_images 
 
     return average_loss, accuracy
 
@@ -103,6 +103,12 @@ class Trainer:
             loss=collections.OrderedDict(),
             accuracy=collections.OrderedDict()
         )
+
+        self.test_history = dict(
+            loss=collections.OrderedDict(),
+            accuracy=collections.OrderedDict()
+        )
+
         self.checkpoint_dir = pathlib.Path("checkpoints")
 
     def validation_step(self):
@@ -114,15 +120,34 @@ class Trainer:
         validation_loss, validation_acc = compute_loss_and_accuracy(
             self.dataloader_val, self.model, self.loss_criterion
         )
+        train_loss, train_acc = compute_loss_and_accuracy(
+            self.dataloader_train, self.model, self.loss_criterion
+        )
+        test_loss, test_acc = compute_loss_and_accuracy(
+            self.dataloader_test, self.model, self.loss_criterion
+        )
+
+
         self.validation_history["loss"][self.global_step] = validation_loss
         self.validation_history["accuracy"][self.global_step] = validation_acc
+
+        self.train_history["loss"][self.global_step] = train_loss
+        self.train_history["accuracy"][self.global_step] = train_acc
+
+        self.test_history["loss"][self.global_step] = test_loss
+        self.test_history["accuracy"][self.global_step] = test_acc
+
         used_time = time.time() - self.start_time
         print(
             f"Epoch: {self.epoch:>1}",
             f"Batches per seconds: {self.global_step / used_time:.2f}",
             f"Global step: {self.global_step:>6}",
+            f"Train Loss: {train_loss:.2f}",    
+            f"Train Accuracy: {train_acc:.3f}",
             f"Validation Loss: {validation_loss:.2f}",
             f"Validation Accuracy: {validation_acc:.3f}",
+            f"Test Loss: {test_loss:.2f}",
+            f"Test Accuracy: {test_acc:.3f}",
             sep=", ")
         self.model.train()
 
@@ -183,7 +208,7 @@ class Trainer:
         for epoch in range(self.epochs):
             self.epoch = epoch
             # Perform a full pass through all the training samples
-            for X_batch, Y_batch in tqdm(self.dataloader_train):
+            for X_batch, Y_batch in self.dataloader_train: #tqdm(self.dataloader_train):
                 loss = self.train_step(X_batch, Y_batch)
                 self.train_history["loss"][self.global_step] = loss
                 self.global_step += 1
@@ -194,6 +219,7 @@ class Trainer:
                     if self.should_early_stop():
                         print("Early stopping.")
                         return
+            
 
     def save_model(self):
         def is_best_model():
